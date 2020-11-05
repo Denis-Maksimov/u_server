@@ -1,0 +1,17 @@
+{
+    "C_Cpp.default.systemIncludePath": ["${default}","/usr/x86_64-w64-mingw32/include/","/usr/include/","/usr/include/x86_64-linux-gnu/"],
+    "editor.occurrencesHighlight": true,
+    "editor.semanticHighlighting.enabled": true,
+    "files.associations": {
+        "*.tcc": "c",
+        "fstream": "c",
+        "functional": "c",
+        "u_server.h": "c",
+        "u_network.h": "c",
+        "socket.h": "c",
+        "features.h": "c"
+    },
+    
+    // "C_Cpp.default.browse.path": ["${default}","/usr/x86_64-w64-mingw32/include/"]
+}
+///usr/x86_64-w64-mingw32/include/winsock2.h
