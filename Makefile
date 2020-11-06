@@ -1,46 +1,72 @@
-#========================================================================================
-#============================ root makefile =============================================
-#========================================================================================
-# @autor: Максимов Денис Николаевич
-# @mail: dn.maksimow@gmail.com
-#----------------------------------------------------------------------------------------
-#    Это скрипт для компиляции Си и Си++ файлов и GUI на FLTK 
-# в рамках проекта Weight Convejor
-#========================================================================================
+# --no-print-directory
+ifndef platform
+  platform=windows
+endif
+
+
+
+TARGET:=run
+LDFLAGS= -lu_net 
+
+#----------Linux-----------
+ifeq ($(platform),linux)
+
+  ifndef GCC
+    GCC :=gcc
+  endif
+
+  ifndef GPP
+    GPP :=g++
+  endif
+
+  ifndef AR
+    AR  :=ar
+  endif
+
+  TARGET:=run
+
+endif
+#----------WINDOWS-----------
+ifeq ($(platform),windows)
+ ifndef GCC
+    GCC :=x86_64-w64-mingw32-gcc
+  endif
+
+  ifndef GPP
+    GPP :=x86_64-w64-mingw32-g++
+  endif
+
+  ifndef AR
+    AR  :=x86_64-w64-mingw32-ar
+  endif
+  
+  LDFLAGS += -static-libgcc -static-libstdc++ -lwinmm -lws2_32 
+  TARGET:=run.exe
+endif
+
+
+
+export platform
 
 
 
 
-#--- Скрыть лишний вывод в терминал ---
-.SILENT:
+all: $(TARGET)
 
-#========================================================================================
-#========================================================================================
-#========================================================================================
-all:
-		# make -f Makefile.linux clean
-		echo "windows compile"
-		make -f Makefile.windows
+$(TARGET): libu_net.a
+	$(GCC) ./t.c -I./inc/server -L. $(LDFLAGS) -o $@
 
-		make -f Makefile.windows clean
-		echo "linux compile"
-		make -f Makefile.linux
-
-		echo "##################### Windows ######################"
-		size ./relise/hello.exe ;echo "";
-		echo "###################### Linux  ######################"
-		size ./relise/run
-Windows: 
-		echo "windows compile"
-		make -f Makefile.windows
-Linux:
-		echo "linux compile"
-		make -f Makefile.linux
+libu_net.a:
+	${MAKE} -C server
 
 
-#-----------------------------------------
-#-- Правило для очистки рабочей области --
-#-----------------------------------------
-clean:
-	make -f Makefile.windows clean
+	
+clean: 
+	${MAKE} -C server $@ 
+
+help:
+	@echo "Использование:"
+	@echo "make [platform=windows|linux]"
+	@echo "По умолчанию собирается для винды"
+
 

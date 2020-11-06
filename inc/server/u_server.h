@@ -1,6 +1,6 @@
 #ifndef U_SERVER
 #define U_SERVER
-#include "u_network.h"
+#include <u_network.h>
 
 struct server_work_in
 {
@@ -31,4 +31,6 @@ void send_udp_to_addr(uint8_t b1,uint8_t b2,uint8_t b3,uint8_t b4, uint16_t port
  int howto_test (void) ;
 
 void set_round_timeout(struct server_work_in* srv, int second, int us);
+
+int howto_test (void);
 #endif // !U_SERVER
