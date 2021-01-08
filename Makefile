@@ -53,6 +53,7 @@ INCLUDES:= -I./inc/server -I./inc/proto
 
 export platform
 export LIB_FOLDER
+export BINFOLDER
 # export PWD
 
 

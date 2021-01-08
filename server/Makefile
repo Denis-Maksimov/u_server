@@ -71,4 +71,4 @@ $(LIB_FOLDER)/libu_net.a: $(OBJECTS_C)
 
 
 clean:
-	# rm $(BINFOLDER)* ../libu_net.a
+	rm $(BINFOLDER)* $(LIB_FOLDER)/libu_net.a
