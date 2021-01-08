@@ -1,12 +1,12 @@
 # --no-print-directory
 ifndef platform
-  platform=windows
+  platform=linux
 endif
 
 
 
 TARGET:=run
-LDFLAGS= -lu_net 
+LDFLAGS= -lu_net -lu_proto 
 
 #----------Linux-----------
 ifeq ($(platform),linux)
@@ -22,7 +22,9 @@ ifeq ($(platform),linux)
   ifndef AR
     AR  :=ar
   endif
-
+  
+  LIB_FOLDER=$(PWD)/lib/linux
+  BINFOLDER:=$(PWD)/obj-linux/
   TARGET:=run
 
 endif
@@ -39,27 +41,31 @@ ifeq ($(platform),windows)
   ifndef AR
     AR  :=x86_64-w64-mingw32-ar
   endif
-  
+
+  LIB_FOLDER=$(PWD)/lib/win
+  BINFOLDER:=$(PWD)/obj-win/
+
   LDFLAGS += -static-libgcc -static-libstdc++ -lwinmm -lws2_32 
   TARGET:=run.exe
 endif
 
-
+INCLUDES:= -I./inc/server -I./inc/proto 
 
 export platform
-
-
+export LIB_FOLDER
+# export PWD
 
 
 all: $(TARGET)
 
-$(TARGET): libu_net.a
-	$(GCC) ./t.c -I./inc/server -L. $(LDFLAGS) -o $@
+$(TARGET): libu_net.a libu_proto.a
+	$(GCC) ./t.c $(INCLUDES) -L$(LIB_FOLDER) $(LDFLAGS) -o $@
 
 libu_net.a:
 	${MAKE} -C server
 
-
+libu_proto.a:
+	${MAKE} -C proto
 	
 clean: 
 	${MAKE} -C server $@ 

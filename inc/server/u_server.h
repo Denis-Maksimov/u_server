@@ -1,32 +1,55 @@
 #ifndef U_SERVER
 #define U_SERVER
 #include <u_network.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef void(*_handler)(io_sockets* io);
+typedef int(*_to_handler)(void);
+
+enum _handlers_flags
+{
+    accept_handler_init =   0b1<<0,
+    in_handler_init =       0b1<<1,
+    out_handler_init =      0b1<<2,
+    timeout_handler_init =  0b1<<3,
+};
+
+struct _handlers_t
+{
+    _handler* accept_handlers;
+    _handler* in_handlers;
+    _handler* out_handlers;
+    _to_handler* timeout_handlers;
+    size_t accept_n, in_n, out_n, to_n;
+    uint8_t flags;
+};
 
 struct server_work_in
 {
     io_sockets io;
-    void(*accept_handler)(io_sockets* io);  //обработчик событий ввода
-    void(*in_handler)(io_sockets* io);      //обработчик событий ввода
-    void(*out_handler)(io_sockets* io);     //обработчик событий вывода
-    int(*timeout_handler)(void);           //обработчик таймаута раунда (if not 0 завершает сервер)
-
+    struct _handlers_t handlers;
     struct timeval tv;                      //таймаут
+    void* _reserved;     // TODO: тут будет структура данных, общая для хэндлеров
 };
 
+
+
+
 int server_work(struct server_work_in* in);
-void init_server(uint16_t port, struct server_work_in* swin);
+void init_tcp_server(uint16_t port, struct server_work_in* swin);
 void init_udp_server(uint16_t port, struct server_work_in* swin);
 void deinit_server(struct server_work_in* srv);
-void change_port(struct server_work_in* swin, uint16_t port);
+void change_tcp_port(struct server_work_in* swin, uint16_t port);
 void change_udp_port(struct server_work_in* swin, uint16_t port);
 
 void server_add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_sockets* io));
 void server_add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_sockets* io));
 void server_add_accept_handler(struct server_work_in* srv_h,void(*accept_handler)(io_sockets* io));
 void server_add_timeout_handler(struct server_work_in* srv_h, int(*timeout_handler)(void));
-void set_default_handlers(struct server_work_in* srv);
-void set_default_udp_handlers(struct server_work_in* srv);
 
+
+void send_from_udp_to_addr(u_socket_t s,uint8_t b1,uint8_t b2,uint8_t b3,uint8_t b4, uint16_t port, char* msg, size_t len);
 void send_udp_to_addr(uint8_t b1,uint8_t b2,uint8_t b3,uint8_t b4, uint16_t port, char* msg, size_t len);
  int howto_test (void) ;
 

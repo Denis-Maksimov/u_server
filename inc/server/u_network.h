@@ -22,6 +22,7 @@
 
 
 typedef  SOCKET u_socket_t;
+typedef int u_socklen_t;
 
 #define U_INVALID_SOCKET    INVALID_SOCKET
 
@@ -43,7 +44,7 @@ typedef  SOCKET u_socket_t;
 #define U_INVALID_SOCKET    0
 
 typedef int u_socket_t;
-
+typedef socklen_t u_socklen_t;
 
 #endif // PLATFORM_UNIX
 //-------------------ALL-----------------------
