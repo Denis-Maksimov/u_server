@@ -1,0 +1,14 @@
+ 
+ [WINDOWS]
+сборка:
+ make platform=windows
+чистка:
+ make platform=windows clean
+
+ [LINUX]
+сборка:
+ make
+чистка:
+ make clean
+
+ 

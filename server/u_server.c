@@ -102,7 +102,7 @@ void init_udp_server(uint16_t port, struct server_work_in* swin)
 //--------------------------------------------------------
 
 // ini обработчик ввода
-static void _add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_sockets* io))
+static void _add_in_handler(struct server_work_in* srv_h, _handler in_handler)
 {
     srv_h->handlers.in_n=1;
     srv_h->handlers.in_handlers=malloc(srv_h->handlers.in_n*sizeof(_handler));
@@ -112,7 +112,7 @@ static void _add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_so
 //--------------------------------------------------------
 
 // Прицепить обработчик ввода
-void server_add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_sockets* io))
+void server_add_in_handler(struct server_work_in* srv_h,_handler in_handler)
 {
     if(!(srv_h->handlers.flags&in_handler_init))
     {
@@ -129,7 +129,7 @@ void server_add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_soc
 //--------------------------------------------------------
 
 // init обработчик вывода
-static void _add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_sockets* io))
+static void _add_out_handler(struct server_work_in* srv_h,_handler out_handler)
 {
     srv_h->handlers.out_n=1;
     srv_h->handlers.out_handlers=malloc(srv_h->handlers.out_n*sizeof(_handler));
@@ -139,7 +139,7 @@ static void _add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_
 //--------------------------------------------------------
 
 // Прицепить обработчик вывода
-void server_add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_sockets* io))
+void server_add_out_handler(struct server_work_in* srv_h,_handler out_handler)
 {
     if(!(srv_h->handlers.flags&out_handler_init))
     {
@@ -157,7 +157,7 @@ void server_add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_s
 //--------------------------------------------------------
 
 // init обработчик по приёму
-static void _add_accept_handler(struct server_work_in* srv_h,void(*accept_handler)(io_sockets* io))
+static void _add_accept_handler(struct server_work_in* srv_h,_handler accept_handler)
 {
     srv_h->handlers.accept_n=1;
     srv_h->handlers.accept_handlers=malloc(srv_h->handlers.accept_n*sizeof(_handler));
@@ -166,7 +166,7 @@ static void _add_accept_handler(struct server_work_in* srv_h,void(*accept_handle
 }
 //--------------------------------------------------------
 // Прицепить обработчик по приёму
-void server_add_accept_handler(struct server_work_in* srv_h,void(*accept_handler)(io_sockets*))
+void server_add_accept_handler(struct server_work_in* srv_h,_handler accept_handler)
 {
     if(!(srv_h->handlers.flags&accept_handler_init))
     {
@@ -287,7 +287,7 @@ int server_work(struct server_work_in* args)
                 printf("new client\n");
                 for (size_t i = 0; i < args->handlers.accept_n; i++)
                 {
-                    args->handlers.accept_handlers[i](&args->io);
+                    args->handlers.accept_handlers[i](&args->io,&args->_reserved);
                 }
             }
             if (FD_ISSET(args->io.out, &fd_in) && args->io.out)
@@ -296,7 +296,7 @@ int server_work(struct server_work_in* args)
                 printf("read data\n");
                 for (size_t i = 0; i < args->handlers.in_n; i++)
                 {
-                    args->handlers.in_handlers[i](&args->io);
+                    args->handlers.in_handlers[i](&args->io,&args->_reserved);
                 }
             }
             if (FD_ISSET(args->io.out, &fd_out) && args->io.out)
@@ -305,7 +305,7 @@ int server_work(struct server_work_in* args)
                 printf("end writing\n");
                 for (size_t i = 0; i < args->handlers.out_n; i++)
                 {
-                    args->handlers.out_handlers[i](&args->io);
+                    args->handlers.out_handlers[i](&args->io,&args->_reserved);
                 }
                 // u_close_sock(args->io.out);
                 // args->io.out=0;
@@ -317,7 +317,7 @@ int server_work(struct server_work_in* args)
 }
 //--------------------------------------------------------
 /*На входяещее сообщение всегда "Hello client" отвечаем*/
-static void default_in_handler(io_sockets* io)
+static void default_in_handler(io_sockets* io,void* _data)
 {
         char data_from_client[1024]={0};
         int n = recv( io->out, data_from_client, 1024, 0 );
@@ -332,20 +332,20 @@ static void default_in_handler(io_sockets* io)
 }
 //--------------------------------------------------------
 /*когда отправлено сообщение закрываем сокет*/
-static void default_out_handler(io_sockets* io){
+static void default_out_handler(io_sockets* io,void* _data){
 
     u_close_sock(io->out);
     io->out=0;
 }
 //--------------------------------------------------------
-static void default_udp_handler(io_sockets* io){
+static void default_udp_handler(io_sockets* io,void* _data){
 
     char c_data_ot_k[1024]={0};
     int n = recv( io->in, c_data_ot_k, 1024, 0 );
     printf("Received data:\n%.*s\n *%d*\n",n, c_data_ot_k,n);
 }
 //--------------------------------------------------------
-static void default_accept_handler(io_sockets* io)
+static void default_accept_handler(io_sockets* io,void* _data)
 {
     io->out=u_accept( io->in, 0, 0);
     if(io->out==-1){

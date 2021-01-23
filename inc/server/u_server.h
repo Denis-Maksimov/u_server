@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef void(*_handler)(io_sockets* io);
+typedef void(*_handler)(io_sockets*,void*);
 typedef int(*_to_handler)(void);
 
 enum _handlers_flags
 {
-    accept_handler_init =   0b1<<0,
-    in_handler_init =       0b1<<1,
-    out_handler_init =      0b1<<2,
-    timeout_handler_init =  0b1<<3,
+    accept_handler_init =   0x1<<0,
+    in_handler_init =       0x1<<1,
+    out_handler_init =      0x1<<2,
+    timeout_handler_init =  0x1<<3,
 };
 
 struct _handlers_t
@@ -43,9 +43,9 @@ void deinit_server(struct server_work_in* srv);
 void change_tcp_port(struct server_work_in* swin, uint16_t port);
 void change_udp_port(struct server_work_in* swin, uint16_t port);
 
-void server_add_in_handler(struct server_work_in* srv_h,void(*in_handler)(io_sockets* io));
-void server_add_out_handler(struct server_work_in* srv_h,void(*out_handler)(io_sockets* io));
-void server_add_accept_handler(struct server_work_in* srv_h,void(*accept_handler)(io_sockets* io));
+void server_add_in_handler(struct server_work_in* srv_h,_handler);
+void server_add_out_handler(struct server_work_in* srv_h,_handler);
+void server_add_accept_handler(struct server_work_in* srv_h,_handler);
 void server_add_timeout_handler(struct server_work_in* srv_h, int(*timeout_handler)(void));
 
 

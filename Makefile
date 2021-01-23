@@ -25,7 +25,7 @@ ifeq ($(platform),linux)
   
   LIB_FOLDER=$(PWD)/lib/linux
   BINFOLDER:=$(PWD)/obj-linux/
-  TARGET:=run
+  TARGET:=bin/run
 
 endif
 #----------WINDOWS-----------
@@ -46,7 +46,7 @@ ifeq ($(platform),windows)
   BINFOLDER:=$(PWD)/obj-win/
 
   LDFLAGS += -static-libgcc -static-libstdc++ -lwinmm -lws2_32 
-  TARGET:=run.exe
+  TARGET:=bin/run.exe
 endif
 
 INCLUDES:= -I./inc/server -I./inc/proto 
@@ -59,17 +59,20 @@ export BINFOLDER
 
 all: $(TARGET)
 
-$(TARGET): libu_net.a libu_proto.a
+$(TARGET): $(LIB_FOLDER)/libu_net.a $(LIB_FOLDER)/libu_proto.a
 	$(GCC) ./t.c $(INCLUDES) -L$(LIB_FOLDER) $(LDFLAGS) -o $@
+	@size ${TARGET}
 
-libu_net.a:
+$(LIB_FOLDER)/libu_net.a:
 	${MAKE} -C server
 
-libu_proto.a:
+$(LIB_FOLDER)/libu_proto.a:
 	${MAKE} -C proto
 	
 clean: 
 	${MAKE} -C server $@ 
+	${MAKE} -C proto $@ 
+	rm -f ${TARGET}
 
 help:
 	@echo "Использование:"
